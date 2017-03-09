@@ -132,11 +132,11 @@ while Res > 1e-6
             xold = x(ii, jj);
             yold = y(ii, jj);
             
-            %P = PQ1(1);
-            %Q = PQ1(2);
+            P = PQ1(1);
+            Q = PQ1(2);
             
-            P = PQ2(1, ii, jj);
-            Q = PQ2(2, ii, jj);
+            %P = PQ2(1, ii, jj);
+            %Q = PQ2(2, ii, jj);
             
             
             if ii ==1
