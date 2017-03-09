@@ -190,5 +190,22 @@ U = zeros(4,Imax,Jmax);
 F = zeros(4,Imax,Jmax);
 G = zeros(4,Imax,Jmax);
 
+cells = zeros(Imax-1,Jmax-1,5); 
+% 2 elements for x_c and y_c, 1 element for A, 2 elements for s_x and s_y
+for ii = 1:(Imax-1)
+    for jj = 1:(Jmax-1)
+        cells(ii,jj,1) = (1/4)*(x(ii,jj)+x(ii+1,jj)+x(ii,jj)+x(ii,jj+1)); % x_center
+        cells(ii,jj,2) = (1/4)*(y(ii,jj)+y(ii+1,jj)+y(ii,jj)+y(ii,jj+1)); % y_center
+        x_ac = x(ii+1,jj) - x(ii,jj+1); y_ac = y(ii+1,jj) - y(ii,jj+1);
+        x_bd = x(ii+1,jj+1) - x(ii,jj); y_bd = y(ii+1,jj+1) - y(ii,jj);
+        cells(ii,jj,3) = (1/2)*(x_ac * y_bd - x_bd * y_ac); % area
+        x_ba = x(ii+1,jj+1)-x(ii+1,jj); y_ba = y(ii+1,jj+1)-y(ii+1,jj);
+        m_ba = (x_ba^2 + y_ba^2)^(1/2); % magnitude of (x_ba,y_ba)
+        l_x = x_ba / m_ba; l_y = y_ba / m_ba; % unit vector
+        s_x = y_ba*l_x; s_y = -x_ba * l_y; % normal vector
+        cells(ii,jj,4) = s_x;
+        cells(ii,jj,5) = s_y;
+    end
+end
 
 
