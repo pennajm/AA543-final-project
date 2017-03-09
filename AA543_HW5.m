@@ -208,4 +208,18 @@ for ii = 1:(Imax-1)
     end
 end
 
+%physical quantities for the freestream vector:
+rhofs = 0.4135;
+ufs = 258.4;
+cfs = 304.025;
+Mfs = 0.85;
+rhoufs = 0.4135*258.4;
+rhovfs = 0.0;
+Pfs = 27300.0;
+rhoEfs = (1/(1.4-1))*Pfs + 0.5*rhofs*(ufs^2);
+
+Ufs = [rhofs, rhoufs, rhovfs, rhoEfs];
+Ufn = [rhofs, rhoufs, rhoufs, rhoEfs];
+Ufsn = Ufs./[rhofs, rhoufs, rhoufs, rhoEfs];
+
 
