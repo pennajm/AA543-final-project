@@ -186,9 +186,9 @@ end
 
 %% 2D EULER FLUID PROBLEM 
 
-U = zeros(4,Imax,Jmax);
-F = zeros(4,Imax,Jmax);
-G = zeros(4,Imax,Jmax);
+U = zeros(Imax,Jmax,4);
+F = zeros(Imax,Jmax,4);
+G = zeros(Imax,Jmax,4);
 
 cells = zeros(Imax-1,Jmax-1,5); 
 % 2 elements for x_c and y_c, 1 element for A, 2 elements for s_x and s_y
