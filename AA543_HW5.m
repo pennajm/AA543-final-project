@@ -31,7 +31,7 @@ for ii = 1:(Imax-1)
     end
 end
 %% FREESTREAM PHYSICAL QUANTITIES 
-
+gamma = 1.4;
 rhofs = 0.4135;
 ufs = 258.4;
 cfs = 304.025;
@@ -45,6 +45,9 @@ Ufs = [rhofs, rhoufs, rhovfs, rhoEfs];
 Ufn = [rhofs, rhoufs, rhoufs, rhoEfs];
 Ufsn = Ufs./[rhofs, rhoufs, rhoufs, rhoEfs];
 
+%calculate Reimann invariants based on freestream
 
+Rnbp = ufs + 2*cfs/(gamma-1);
+Rnim = ufs - 2*cfs/(gamma-1);
 
 
