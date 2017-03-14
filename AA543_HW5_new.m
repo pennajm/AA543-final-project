@@ -14,6 +14,7 @@ x = importdata('xcoors.dat'); y = importdata('ycoors.dat');
 
 %% FREESTREAM PHYSICAL QUANTITIES 
 
+gamma = 1.4;
 rhofs = 0.4135;
 ufs = 258.4;
 vfs = 0.0;
@@ -26,12 +27,12 @@ rhoEfs = (1/(1.4-1))*Pfs + 0.5*rhofs*(ufs^2);
 rhouH = rhoufs*((gamma/(gamma-1))*Pfs/rhofs + 0.5*rhofs*ufs^2);
 rhovH = rhovfs*((gamma/(gamma-1))*Pfs/rhofs + 0.5*rhofs*vfs^2);
 
-Ufs = [rhofs, rhoufs, rhovfs, rhoEfs];
-Ufn = [rhofs, rhoufs, rhoufs, rhoEfs];
+Ufs = [rhofs, rhoufs, rhovfs, rhoEfs]';
+Ufn = [rhofs, rhoufs, rhoufs, rhoEfs]';
 Ufsn = Ufs./[rhofs, rhoufs, rhoufs, rhoEfs];
 
-Ffs = [rhoufs, rho*ufs^2 +Pfs, rho*ufs*vfs, rhouH];
-Gfs = [rhoufs, rho*ufs*vfs, rho*vfs^2 + Pfs, rhovH];
+Ffs = [rhoufs, (rhofs*ufs^2 +Pfs), rhofs*ufs*vfs, rhouH]';
+Gfs = [rhoufs, rhofs*ufs*vfs, (rhofs*vfs^2 + Pfs), rhovH]';
 
 %% SPACE DISCRETIZATION
 
@@ -41,12 +42,12 @@ cell_v = zeros(Imax-1,Jmax-1,8); % v_i, v_i1, v_j, v_j1
 cell_n = zeros(Imax-1,Jmax-1,8); % n_i, n_i1, n_j, n_j1
 cell_na = zeros(Imax-1,Jmax-1,4); % n_ai, n_aj
 u_IC = zeros(Imax-1,Jmax-1,4); % u_ni, u_nj
-U_IC = zeros(Imax-1, Jmax-1, 4,4);
-F_IC = zeros(Imax-1, Jmax-1, 4,4);
-G_IC = zeros(Imax-1, Jmax-1, 4,4);
 U = zeros(Imax-1, Jmax-1, 4,4);
 F = zeros(Imax-1, Jmax-1, 4,4);
 G = zeros(Imax-1, Jmax-1, 4,4);
+% U = zeros(Imax-1, Jmax-1, 4,4);
+% F = zeros(Imax-1, Jmax-1, 4,4);
+% G = zeros(Imax-1, Jmax-1, 4,4);
 
 for ii = 1:(Imax-1)
     for jj = 1:(Jmax-1)
@@ -94,23 +95,124 @@ for ii = 1:(Imax-1)
         u_IC(ii,jj,3) = (ufs * cell_na(ii,jj,3))*cell_na(ii,jj,3); %ajx
         u_IC(ii,jj,4) = (ufs * cell_na(ii,jj,3))*cell_na(ii,jj,4); %ajy
         
-        U_IC(ii,jj,1,:) = (Ufs * cell_na(ii,jj,1))*cell_na(ii,jj,1); %aix
-        U_IC(ii,jj,2,:) = (Ufs * cell_na(ii,jj,1))*cell_na(ii,jj,2); %aiy 
-        U_IC(ii,jj,3,:) = (Ufs * cell_na(ii,jj,3))*cell_na(ii,jj,3); %ajx
-        U_IC(ii,jj,4,:) = (Ufs * cell_na(ii,jj,3))*cell_na(ii,jj,4); %ajy
+        U(ii,jj,1,:) = (Ufs * cell_na(ii,jj,1))*cell_na(ii,jj,1); %aix
+        U(ii,jj,2,:) = (Ufs * cell_na(ii,jj,1))*cell_na(ii,jj,2); %aiy 
+        U(ii,jj,3,:) = (Ufs * cell_na(ii,jj,3))*cell_na(ii,jj,3); %ajx
+        U(ii,jj,4,:) = (Ufs * cell_na(ii,jj,3))*cell_na(ii,jj,4); %ajy
         
-        F_IC(ii,jj,1) = (Ffs * cell_na(ii,jj,1))*cell_na(ii,jj,1); %aix
-        F_IC(ii,jj,2) = (Ffs * cell_na(ii,jj,1))*cell_na(ii,jj,2); %aiy 
-        F_IC(ii,jj,3) = (Ffs * cell_na(ii,jj,3))*cell_na(ii,jj,3); %ajx
-        F_IC(ii,jj,4) = (Ffs * cell_na(ii,jj,3))*cell_na(ii,jj,4); %ajy
+        F(ii,jj,1,:) = (Ffs * cell_na(ii,jj,1))*cell_na(ii,jj,1); %aix
+        F(ii,jj,2,:) = (Ffs * cell_na(ii,jj,1))*cell_na(ii,jj,2); %aiy 
+        F(ii,jj,3,:) = (Ffs * cell_na(ii,jj,3))*cell_na(ii,jj,3); %ajx
+        F(ii,jj,4,:) = (Ffs * cell_na(ii,jj,3))*cell_na(ii,jj,4); %ajy
         
-        G_IC(ii,jj,1,:) = (Gfs * cell_na(ii,jj,1))*cell_na(ii,jj,1); %aix
-        G_IC(ii,jj,2,:) = (Gfs * cell_na(ii,jj,1))*cell_na(ii,jj,2); %aiy 
-        G_IC(ii,jj,3,:) = (Gfs * cell_na(ii,jj,3))*cell_na(ii,jj,3); %ajx
-        G_IC(ii,jj,4,:) = (Gfs * cell_na(ii,jj,3))*cell_na(ii,jj,4); %ajy
+        G(ii,jj,1,:) = (Gfs * cell_na(ii,jj,2))*cell_na(ii,jj,1); %aix
+        G(ii,jj,2,:) = (Gfs * cell_na(ii,jj,2))*cell_na(ii,jj,2); %aiy 
+        G(ii,jj,3,:) = (Gfs * cell_na(ii,jj,4))*cell_na(ii,jj,3); %ajx
+        G(ii,jj,4,:) = (Gfs * cell_na(ii,jj,4))*cell_na(ii,jj,4); %ajy
         % NOTE: for different angle of attack, change dot product in u_IC code!
     end
 end
+%% COMPUTE ARTIFICIAL VISCOSITY
+F_flux = zeros(Imax-1, Jmax-1, 4,4);
+G_flux = zeros(Imax-1, Jmax-1, 4,4);
+R = zeros(Imax-1, Jmax-1);
+D = zeros(Imax-1, Jmax-1, 4, 4); % CONVENTION CHANGE :/ 
+
+Rnbp = u_IC(round(0.25*Imax):round(0.75*Imax),Jmax-1,3) + ...
+     + u_IC(round(0.25*Imax):round(0.75*Imax), Jmax-1,4) + 2*cfs/(gamma-1);
+Rnim = u_IC(round(0.25*Imax):round(0.75*Imax),Jmax-1,3) + ...
+     +u_IC(round(0.25*Imax):round(0.75*Imax), Jmax-1,4) - 2*cfs/(gamma-1);
+%unbi = (Rnbp + Rnim)/2;
+cbi = (Rnbp - Rnim)*0.25*(gamma-1);
+
+P = (gamma -1)*(U(:,:,4) - 0.5*(U(:,:,2).^2 + U(:,:,3).^2)./U(:,:,1));
+uvec = ones(Imax,Jmax,2);
+uvec(:,:,1) = ufs; 
+uvec(:,:,2) = vfs;
+nu = zeros(Imax,1);
+E2 = zeros(Imax-1,Jmax-1,4);
+E4 = zeros(Imax-1,Jmax-1,4);
+k2 = 1/4; 
+k4 = 1/256;
+
+for ii = 1:Imax-1
+    if ii==1
+        nu(ii,1) = abs((P(ii+1,:) - 2*P(ii,:) + P(Imax-1,:))/...
+                (P(ii+1,:) + 2*P(ii,:) + P(Imax-1,:)));
+    elseif ii ==Imax-1
+        nu(ii,1) = abs((P(1,:) - 2*P(ii,:) + P(ii-1,:))/...
+        (P(1,:) + 2*P(ii,:) + P(ii-1,:)));
+    else
+        nu(ii,1) = abs((P(ii+1,:) - 2*P(ii,:) + P(ii-1,:))/...
+        (P(ii+1,:) + 2*P(ii,:) + P(ii-1,:)));
+    end
+end
+
+for nind = 0:3
+for ii = 1:Imax-1
+    for jj = 1:Jmax-1
+        if ii == 1
+            E2(ii,jj,nind+1) = 0.5*k2*(dot(uvec(ii,jj,:)*cell_n(ii,jj,(1+nind*2):(2+nind*2)))...
+                + cfs*sqrt(sum(cell_n(ii,jj,(1+nind*2):(2+nind*2)))))*max([nu(Imax),nu(ii), nu(ii+1), nu(ii+2)]);
+        elseif ii == Imax-1
+            E2(ii,jj,nind+1) = 0.5*k2*(dot(uvec(ii,jj,:)*cell_n(ii,jj,(1+nind*2):(2+nind*2)))...
+                + cfs*sqrt(sum(cell_n(ii,jj,(1+nind*2):(2+nind*2)))))*max([nu(ii-1),nu(ii), nu(ii+1), nu(1)]);
+        else
+            E2(ii,jj,nind+1) = 0.5*k2*(dot(uvec(ii,jj,:)*cell_n(ii,jj,(1+nind*2):(2+nind*2)))...
+                + cfs*sqrt(sum(cell_n(ii,jj,(1+nind*2):(2+nind*2)))))*max([nu(ii-1),nu(ii), nu(ii+1), nu(ii+2)]);
+        end
+        
+        E4(ii,jj,nind+1) = max([0,(0.5*k4*(dot(uvec(ii,jj,:)*cell_n(ii,jj,(1+nind*2):(2+nind*2)))...
+            + cfs*sqrt(sum(cell_n(ii,jj,(1+nind*2):(2+nind*2))))) - E2(ii,jj,nind+1))]);
+        
+        if ii== 1
+            D(ii,jj,:,nind+1) = E2(ii,jj,nind+1).*(U(ii+1,jj,:) - U(ii,jj,:)) - ...
+                E4(ii,jj,nind+1).*(U(ii+2,jj,:) - 3*U(ii+1,jj,:) + 3*U(ii,jj,:) - U(Imax,jj,:));
+        elseif ii == Imax-1
+            D(ii,jj,:,nind+1) = E2(ii,jj,nind+1).*(U(ii+1,jj,:) - U(ii,jj,:)) - ...
+                E4(ii,jj,nind+1).*(U(1,jj,:) - 3*U(ii+1,jj,:) + 3*U(ii,jj,:) - U(ii-1,jj,:));
+        else
+            D(ii,jj,:,nind+1) = E2(ii,jj,nind+1).*(U(ii+1,jj,:) - U(ii,jj,:)) - ...
+                E4(ii,jj,nind+1).*(U(ii+2,jj,:) - 3*U(ii+1,jj,:) + 3*U(ii,jj,:) - U(ii-1,jj,:));
+        end
+    end
+end
+end
+
+
+unitrefs = [[1,2], [3,4], [5,6], [7,8]];
+
+% for ii = 1:(Imax-1)
+%     for jj = 1:(Jmax-1)     
+%         if ii < 128
+%             F_flux(ii,jj,1,:) = (1/2)*(F(ii,jj,1,:)+F(ii+1,jj,1,:))*cell_n(ii,jj,1)-D(ii,jj,1,:);
+%             F_flux(ii,jj,2,:) = (1/2)*(F(ii,jj,2,:)+F(ii+1,jj,2,:))*cell_n(ii,jj,3)-D(ii,jj,2,:);
+%             F_flux(ii,jj,3,:) = (1/2)*(F(ii,jj,3,:)+F(ii+1,jj,3,:))*cell_n(ii,jj,5)-D(ii,jj,3,:);
+%             F_flux(ii,jj,4,:) = (1/2)*(F(ii,jj,4,:)+F(ii+1,jj,4,:))*cell_n(ii,jj,7)-D(ii,jj,4,:);
+%             G_flux(ii,jj,1,:) = (1/2)*(G(ii,jj,1,:)+G(ii+1,jj,1,:))*cell_n(ii,jj,2)-D(ii,jj,1,:);
+%             G_flux(ii,jj,2,:) = (1/2)*(G(ii,jj,2,:)+G(ii+1,jj,2,:))*cell_n(ii,jj,4)-D(ii,jj,2,:);
+%             G_flux(ii,jj,3,:) = (1/2)*(G(ii,jj,3,:)+G(ii+1,jj,3,:))*cell_n(ii,jj,5)-D(ii,jj,3,:);
+%             G_flux(ii,jj,4,:) = (1/2)*(G(ii,jj,4,:)+G(ii+1,jj,4,:))*cell_n(ii,jj,8)-D(ii,jj,4,:);
+%             sum_F_flux = sum(F_flux(ii,jj,1,:)+F_flux(ii,jj,2,:)+F_flux(ii,jj,3,:)+F_flux(ii,jj,4,:));
+%             sum_G_flux = sum(G_flux(ii,jj,1,:)+G_flux(ii,jj,2,:)+G_flux(ii,jj,3,:)+G_flux(ii,jj,4,:));
+%             R(ii,jj) = sum_F_flux + sum_G_flux;
+%         else
+%             F_flux(ii,jj,1,:) = (1/2)*(F(ii,jj,1,:)+F(1,jj,1,:))*cell_n(ii,jj,1)-D(ii,jj,1,:);
+%             F_flux(ii,jj,2,:) = (1/2)*(F(ii,jj,2,:)+F(1,jj,2,:))*cell_n(ii,jj,3)-D(ii,jj,2,:);
+%             F_flux(ii,jj,3,:) = (1/2)*(F(ii,jj,3,:)+F(1,jj,3,:))*cell_n(ii,jj,5)-D(ii,jj,3,:);
+%             F_flux(ii,jj,4,:) = (1/2)*(F(ii,jj,4,:)+F(1,jj,4,:))*cell_n(ii,jj,7)-D(ii,jj,4,:);
+%             G_flux(ii,jj,1,:) = (1/2)*(G(ii,jj,1,:)+G(1,jj,1,:))*cell_n(ii,jj,2)-D(ii,jj,1,:);
+%             G_flux(ii,jj,2,:) = (1/2)*(G(ii,jj,2,:)+G(1,jj,2,:))*cell_n(ii,jj,4)-D(ii,jj,2,:);
+%             G_flux(ii,jj,3,:) = (1/2)*(G(ii,jj,3,:)+G(1,jj,3,:))*cell_n(ii,jj,5)-D(ii,jj,3,:);
+%             G_flux(ii,jj,4,:) = (1/2)*(G(ii,jj,4,:)+G(1,jj,4,:))*cell_n(ii,jj,8)-D(ii,jj,4,:);
+%             sum_F_flux = sum(F_flux(ii,jj,1,:)+F_flux(ii,jj,2,:)+F_flux(ii,jj,3,:)+F_flux(ii,jj,4,:));
+%             sum_G_flux = sum(G_flux(ii,jj,1,:)+G_flux(ii,jj,2,:)+G_flux(ii,jj,3,:)+G_flux(ii,jj,4,:));
+%             R(ii,jj) = sum_F_flux + sum_G_flux;
+%         end
+%     end
+% end
+
+
 %pcolor(cell_area)
 %quiver(cell_points(:,:,1),cell_points(:,:,2),cell_n(:,:,1),cell_n(:,:,2))
 %quiver(cell_points(:,:,3),cell_points(:,:,4),cell_n(:,:,3),cell_n(:,:,4))
@@ -120,26 +222,17 @@ end
 %quiver(cell_points(:,:,1),cell_points(:,:,2),cell_na(:,:,3),cell_na(:,:,4))
 %quiver(cell_points(:,:,1),cell_points(:,:,2),u_IC(:,:,1),u_IC(:,:,2))
 
-
-%from here assuming the normal boundary conditions
-
-U = U_IC;
-G = G_IC;
-F = F_IC;
-%calculate Reimann invariants based on freestream
-Rnbpi = u_IC(0.25*Imax:0.75*Imax,Jmax-1,3) + ...
-    +u_IC(0.25*Imax:0.75*Imax, Jmax-1,4) + 2*cfs/(gamma-1);
-
-Rnim = u_IC(0.25*Imax:0.75*Imax,Jmax-1,3) + ...
-    +u_IC(0.25*Imax:0.75*Imax, Jmax-1,4) - 2*cfs/(gamma-1);
-
-%unbi = (Rnbp + Rnim)/2;
-cbi = (Rnbp - Rnim)*0.25*(gamma-1);
-
-
-
-%use streamline constants to calculate interior values
-Hfs = (gamma/(gamma-1))*Pfs/rhofs + 0.5*ufs^2;
+% %from here assuming the normal boundary conditions
+% U = U_IC; G = G_IC; F = F_IC;
+% %calculate Reimann invariants based on freestream
+% Rnbpi = u_IC(0.25*Imax:0.75*Imax,Jmax-1,3) + ...
+%     +u_IC(0.25*Imax:0.75*Imax, Jmax-1,4) + 2*cfs/(gamma-1);
+% Rnim = u_IC(0.25*Imax:0.75*Imax,Jmax-1,3) + ...
+%     +u_IC(0.25*Imax:0.75*Imax, Jmax-1,4) - 2*cfs/(gamma-1);
+% %unbi = (Rnbp + Rnim)/2;
+% cbi = (Rnbp - Rnim)*0.25*(gamma-1);
+% %use streamline constants to calculate interior values
+% Hfs = (gamma/(gamma-1))*Pfs/rhofs + 0.5*ufs^2;
 
 
 
