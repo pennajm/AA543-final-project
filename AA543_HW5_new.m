@@ -135,49 +135,49 @@ E4 = zeros(Imax-1,Jmax-1,4);
 k2 = 1/4; 
 k4 = 1/256;
 
-for ii = 1:Imax-1
-    if ii==1
-        nu(ii,1) = abs((P(ii+1,:) - 2*P(ii,:) + P(Imax-1,:))/...
-                (P(ii+1,:) + 2*P(ii,:) + P(Imax-1,:)));
-    elseif ii ==Imax-1
-        nu(ii,1) = abs((P(1,:) - 2*P(ii,:) + P(ii-1,:))/...
-        (P(1,:) + 2*P(ii,:) + P(ii-1,:)));
-    else
-        nu(ii,1) = abs((P(ii+1,:) - 2*P(ii,:) + P(ii-1,:))/...
-        (P(ii+1,:) + 2*P(ii,:) + P(ii-1,:)));
-    end
-end
+% for ii = 1:Imax-1
+%     if ii==1
+%         nu(ii,1) = abs((P(ii+1,:) - 2*P(ii,:) + P(Imax-1,:))/...
+%                 (P(ii+1,:) + 2*P(ii,:) + P(Imax-1,:)));
+%     elseif ii ==Imax-1
+%         nu(ii,1) = abs((P(1,:) - 2*P(ii,:) + P(ii-1,:))/...
+%         (P(1,:) + 2*P(ii,:) + P(ii-1,:)));
+%     else
+%         nu(ii,1) = abs((P(ii+1,:) - 2*P(ii,:) + P(ii-1,:))/...
+%         (P(ii+1,:) + 2*P(ii,:) + P(ii-1,:)));
+%     end
+% end
 
-for nind = 0:3
-for ii = 1:Imax-1
-    for jj = 1:Jmax-1
-        if ii == 1
-            E2(ii,jj,nind+1) = 0.5*k2*(dot(uvec(ii,jj,:)*cell_n(ii,jj,(1+nind*2):(2+nind*2)))...
-                + cfs*sqrt(sum(cell_n(ii,jj,(1+nind*2):(2+nind*2)))))*max([nu(Imax),nu(ii), nu(ii+1), nu(ii+2)]);
-        elseif ii == Imax-1
-            E2(ii,jj,nind+1) = 0.5*k2*(dot(uvec(ii,jj,:)*cell_n(ii,jj,(1+nind*2):(2+nind*2)))...
-                + cfs*sqrt(sum(cell_n(ii,jj,(1+nind*2):(2+nind*2)))))*max([nu(ii-1),nu(ii), nu(ii+1), nu(1)]);
-        else
-            E2(ii,jj,nind+1) = 0.5*k2*(dot(uvec(ii,jj,:)*cell_n(ii,jj,(1+nind*2):(2+nind*2)))...
-                + cfs*sqrt(sum(cell_n(ii,jj,(1+nind*2):(2+nind*2)))))*max([nu(ii-1),nu(ii), nu(ii+1), nu(ii+2)]);
-        end
-        
-        E4(ii,jj,nind+1) = max([0,(0.5*k4*(dot(uvec(ii,jj,:)*cell_n(ii,jj,(1+nind*2):(2+nind*2)))...
-            + cfs*sqrt(sum(cell_n(ii,jj,(1+nind*2):(2+nind*2))))) - E2(ii,jj,nind+1))]);
-        
-        if ii== 1
-            D(ii,jj,:,nind+1) = E2(ii,jj,nind+1).*(U(ii+1,jj,:) - U(ii,jj,:)) - ...
-                E4(ii,jj,nind+1).*(U(ii+2,jj,:) - 3*U(ii+1,jj,:) + 3*U(ii,jj,:) - U(Imax,jj,:));
-        elseif ii == Imax-1
-            D(ii,jj,:,nind+1) = E2(ii,jj,nind+1).*(U(ii+1,jj,:) - U(ii,jj,:)) - ...
-                E4(ii,jj,nind+1).*(U(1,jj,:) - 3*U(ii+1,jj,:) + 3*U(ii,jj,:) - U(ii-1,jj,:));
-        else
-            D(ii,jj,:,nind+1) = E2(ii,jj,nind+1).*(U(ii+1,jj,:) - U(ii,jj,:)) - ...
-                E4(ii,jj,nind+1).*(U(ii+2,jj,:) - 3*U(ii+1,jj,:) + 3*U(ii,jj,:) - U(ii-1,jj,:));
-        end
-    end
-end
-end
+% for nind = 0:3
+% for ii = 1:Imax-1
+%     for jj = 1:Jmax-1
+%         if ii == 1
+%             E2(ii,jj,nind+1) = 0.5*k2*(dot(uvec(ii,jj,:)*cell_n(ii,jj,(1+nind*2):(2+nind*2)))...
+%                 + cfs*sqrt(sum(cell_n(ii,jj,(1+nind*2):(2+nind*2)))))*max([nu(Imax),nu(ii), nu(ii+1), nu(ii+2)]);
+%         elseif ii == Imax-1
+%             E2(ii,jj,nind+1) = 0.5*k2*(dot(uvec(ii,jj,:)*cell_n(ii,jj,(1+nind*2):(2+nind*2)))...
+%                 + cfs*sqrt(sum(cell_n(ii,jj,(1+nind*2):(2+nind*2)))))*max([nu(ii-1),nu(ii), nu(ii+1), nu(1)]);
+%         else
+%             E2(ii,jj,nind+1) = 0.5*k2*(dot(uvec(ii,jj,:)*cell_n(ii,jj,(1+nind*2):(2+nind*2)))...
+%                 + cfs*sqrt(sum(cell_n(ii,jj,(1+nind*2):(2+nind*2)))))*max([nu(ii-1),nu(ii), nu(ii+1), nu(ii+2)]);
+%         end
+%         
+%         E4(ii,jj,nind+1) = max([0,(0.5*k4*(dot(uvec(ii,jj,:)*cell_n(ii,jj,(1+nind*2):(2+nind*2)))...
+%             + cfs*sqrt(sum(cell_n(ii,jj,(1+nind*2):(2+nind*2))))) - E2(ii,jj,nind+1))]);
+%         
+%         if ii== 1
+%             D(ii,jj,:,nind+1) = E2(ii,jj,nind+1).*(U(ii+1,jj,:) - U(ii,jj,:)) - ...
+%                 E4(ii,jj,nind+1).*(U(ii+2,jj,:) - 3*U(ii+1,jj,:) + 3*U(ii,jj,:) - U(Imax,jj,:));
+%         elseif ii == Imax-1
+%             D(ii,jj,:,nind+1) = E2(ii,jj,nind+1).*(U(ii+1,jj,:) - U(ii,jj,:)) - ...
+%                 E4(ii,jj,nind+1).*(U(1,jj,:) - 3*U(ii+1,jj,:) + 3*U(ii,jj,:) - U(ii-1,jj,:));
+%         else
+%             D(ii,jj,:,nind+1) = E2(ii,jj,nind+1).*(U(ii+1,jj,:) - U(ii,jj,:)) - ...
+%                 E4(ii,jj,nind+1).*(U(ii+2,jj,:) - 3*U(ii+1,jj,:) + 3*U(ii,jj,:) - U(ii-1,jj,:));
+%         end
+%     end
+% end
+% end
 
 
 unitrefs = [[1,2], [3,4], [5,6], [7,8]];
