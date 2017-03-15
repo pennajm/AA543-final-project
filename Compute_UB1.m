@@ -13,11 +13,12 @@ Eslopes = (E(:,2) - E(:,1))./dist;
 u = U(:,1,2)./U(:,1,1);
 v = U(:,1,3)./U(:,1,1);
 UB1 = zeros(I_MAX-1,4);
+boundnorms = sqrt(S(:,1,3,2).^2 + S(:,1,3,1).^2);
 %tangential quantities for the surface
-ul = u.*S(:,1,3,2) - v.*S(:,1,3,1); 
+ul = u.*S(:,1,3,2)./boundnorms - v.*S(:,1,3,1)./boundnorms; 
 % now recompute the u and v for physical 
-uba = ul.*S(:,1,3,2);
-vba = -ul.*S(:,1,3,1);
+uba = ul.*S(:,1,3,2)./boundnorms;
+vba = -ul.*S(:,1,3,1)./boundnorms;
 
 %ratio of the distances to find the next distance for extrapolation
 dist2 = sqrt((X(:,3,2) - X(:,2,2)).^2 + (X(:,3,1) - X(:,2,1)).^2);
