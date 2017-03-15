@@ -1,4 +1,4 @@
-function [Ub] = boundary_condition_code( I_MAX, J_MAX, U,S)
+function [Ub2] = boundary_condition_code( I_MAX, J_MAX, U,S)
 
 %setting up the boundary conditions 
 gamma = 1.4;
@@ -99,9 +99,9 @@ Ubo(:,2) = rhobo.*ubo;
 Ubo(:,3) = rhobo.*vbo;
 Ubo(:,4) = rhobo.*Ebo;
 
-Ub = zeros(I_MAX-1,4);
-Ub(1:(0.25*(I_MAX-1)),:) = Ubo((0.25*(I_MAX-1)+1):(0.5*(I_MAX-1)),:);
-Ub((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)),:) = Ubi;
-Ub((0.75*(I_MAX-1)+1):I_MAX-1,:) = Ubo(1:(0.25*(I_MAX-1)),:);
+Ub2 = zeros(I_MAX-1,4);
+Ub2(1:(0.25*(I_MAX-1)),:) = Ubo((0.25*(I_MAX-1)+1):(0.5*(I_MAX-1)),:);
+Ub2((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)),:) = Ubi;
+Ub2((0.75*(I_MAX-1)+1):I_MAX-1,:) = Ubo(1:(0.25*(I_MAX-1)),:);
 
 end
