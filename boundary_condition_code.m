@@ -31,13 +31,13 @@ vbi = -ulbi.*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,1)./ibnorm) - ...
     unbi.*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,2)./ibnorm);
 Ebi = (1/(gamma-1))*(Pbi./rhobi) + 0.5*(ubi.^2 + vbi.^2);
 %put together U
-Ubi = zeros((0.5*I_MAX-1),1,4);
+Ubi = zeros((0.5*I_MAX-1),4);
 
 
-Ubi(:,1,1) = rhobi;
-Ubi(:,1,2) = rhobi.*ubi;
-Ubi(:,1,3) = rhobi.*vbi;
-Ubi(:,1,4) = rhobi.*Ebi;
+Ubi(:,1) = rhobi;
+Ubi(:,2) = rhobi.*ubi;
+Ubi(:,3) = rhobi.*vbi;
+Ubi(:,4) = rhobi.*Ebi;
 
 % outer boundary conditions, upper quadrant
 u_ou = U(((0.75*(I_MAX-1)+1)):(I_MAX-1),J_MAX-1,2)./U((0.75*(I_MAX-1)):(I_MAX-1),J_MAX-1,1);
@@ -92,15 +92,16 @@ ubo = -ulbo.*(Snormy./obnorm) + unbo.*(Snormx./obnorm);
 vbo = ulbo.*(Snormx./obnorm) + unbo.*(Snormy./obnorm);
 Ebo = (1/(gamma-1))*(Pbo./rhobo) + 0.5*(ubo.^2 + vbo.^2);
 %put together U, F, G
-Ubo = zeros((0.5*I_MAX-1),1,4);
+Ubo = zeros((0.5*I_MAX-1),4);
 
-Ubo(:,1,1) = rhobo;
-Ubo(:,1,2) = rhobo.*ubo;
-Ubo(:,1,3) = rhobo.*vbo;
-Ubo(:,1,4) = rhobo.*Ebo;
+Ubo(:,1) = rhobo;
+Ubo(:,2) = rhobo.*ubo;
+Ubo(:,3) = rhobo.*vbo;
+Ubo(:,4) = rhobo.*Ebo;
 
-Ub = zeros(I_MAX-1,1,4);
-Ub(1:(0.25*(I_MAX-1)),1,:) = Ubo((0.25*(I_MAX-1)+1):(0.5*(I_MAX-1)),1,:);
-Ub((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)),1,:) = Ubi;
-Ub((0.75*(I_MAX-1)+1):I_MAX-1,1,:) = Ubo(1:(0.25*(I_MAX-1)),1,:);
+Ub = zeros(I_MAX-1,4);
+Ub(1:(0.25*(I_MAX-1)),:) = Ubo((0.25*(I_MAX-1)+1):(0.5*(I_MAX-1)),:);
+Ub((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)),:) = Ubi;
+Ub((0.75*(I_MAX-1)+1):I_MAX-1,:) = Ubo(1:(0.25*(I_MAX-1)),:);
+
 end
