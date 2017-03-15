@@ -1,0 +1,26 @@
+function FG = Compute_FG(I_MAX,J_MAX,g,U)
+
+g = 1.4;
+FG = zeros(I_MAX-1,J_MAX-1,2,4);
+for ii = 1:I_MAX-1
+    for jj = 1:J_MAX-1
+        FG(ii,jj,1,1) = U(ii,jj,2);
+        FG(ii,jj,1,2) = (U(ii,jj,2)^2)/U(ii,jj,1) ...
+                      +(g-1)*(U(ii,jj,4)-(1/2)*(U(ii,jj,2)^2 ...
+                      + U(ii,jj,3)^2)/U(ii,jj,1));
+        FG(ii,jj,1,3) = U(ii,jj,2)*U(ii,jj,3)/U(ii,jj,1);
+        FG(ii,jj,1,4) = U(ii,jj,2)*(g*U(ii,jj,4)/U(ii,jj,1) ...
+                      - ((g-1)/2)*(U(ii,jj,2)^2 ...
+                      + U(ii,jj,3)^2)/(U(ii,jj,1)^2));
+        FG(ii,jj,2,1) = U(ii,jj,3);
+        FG(ii,jj,2,2) = U(ii,jj,3)*U(ii,jj,2)/U(ii,jj,1);
+        FG(ii,jj,2,3) = (U(ii,jj,3)^2)/U(ii,jj,1) ...
+                      +(g-1)*(U(ii,jj,4)-(1/2)*(U(ii,jj,2)^2 ...
+                      + U(ii,jj,3)^2)/U(ii,jj,1));
+        FG(ii,jj,2,4) = U(ii,jj,3)*(g*U(ii,jj,4)/U(ii,jj,1) ...
+                      - ((g-1)/2)*(U(ii,jj,2)^2 ...
+                      + U(ii,jj,3)^2)/(U(ii,jj,1)^2));
+    end
+end
+end
+
