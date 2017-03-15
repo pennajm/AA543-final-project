@@ -2,7 +2,7 @@
 
 clear all; close all; clc
 
-CFL = 2.5;
+RES_TOL = 10^(-6); T_TOL = 1; CFL = 2.5;
 Imax = 129; Jmax = 65;
 Is = 1:1:Imax; Js = 1:1:Jmax;
 x = importdata('xcoors.dat'); y = importdata('ycoors.dat');
@@ -37,10 +37,11 @@ cell_v = zeros(Imax-1,Jmax-1,8); % v_i, v_i1, v_j, v_j1
 S = zeros(Imax-1,Jmax-1,8); % n_i, n_i1, n_j, n_j1
 S_avg = zeros(Imax-1,Jmax-1,4); % n_ai, n_aj
 u = zeros(Imax-1,Jmax-1,4); % u_ni, u_nj
-U = zeros(Imax-1, Jmax-1, 4,4);
+U = zeros(Imax-1, Jmax-1, 4);
 F = zeros(Imax-1, Jmax-1, 4,4);
 G = zeros(Imax-1, Jmax-1, 4,4);
 
+%% COMPUTE SPATIAL QUANTITIES
 for ii = 1:(Imax-1)
     for jj = 1:(Jmax-1)
         % corner vectors
@@ -72,17 +73,13 @@ for ii = 1:(Imax-1)
         S_avg(ii,jj,2) = (1/2)*(S(ii,jj,4) - S(ii,jj,2));
         S_avg(ii,jj,3) = (1/2)*(S(ii,jj,7) - S(ii,jj,5));
         S_avg(ii,jj,4) = (1/2)*(S(ii,jj,8) - S(ii,jj,6));
-        % u_IC 
-        u(ii,jj,1) = (ufs * S_avg(ii,jj,1))*S_avg(ii,jj,1); %aix
-        u(ii,jj,2) = (ufs * S_avg(ii,jj,1))*S_avg(ii,jj,2); %aiy 
-        u(ii,jj,3) = (ufs * S_avg(ii,jj,3))*S_avg(ii,jj,3); %ajx
-        u(ii,jj,4) = (ufs * S_avg(ii,jj,3))*S_avg(ii,jj,4); %ajy
-        
-        U(ii,jj,1,:) = (Ufs * S_avg(ii,jj,1))*S_avg(ii,jj,1); %aix
-        U(ii,jj,2,:) = (Ufs * S_avg(ii,jj,1))*S_avg(ii,jj,2); %aiy 
-        U(ii,jj,3,:) = (Ufs * S_avg(ii,jj,3))*S_avg(ii,jj,3); %ajx
-        U(ii,jj,4,:) = (Ufs * S_avg(ii,jj,3))*S_avg(ii,jj,4); %ajy
-        
+    end
+end
+
+%% COMPUTE PHYSICAL FLUX
+for ii = Imax-1
+    for jj = Jmax-1
+
         F(ii,jj,1,:) = (Ffs * S_avg(ii,jj,1))*S_avg(ii,jj,1); %aix
         F(ii,jj,2,:) = (Ffs * S_avg(ii,jj,1))*S_avg(ii,jj,2); %aiy 
         F(ii,jj,3,:) = (Ffs * S_avg(ii,jj,3))*S_avg(ii,jj,3); %ajx
@@ -172,6 +169,8 @@ for nind = 0:3
     end
 end
 
+%% COMPUTE NUMERICAL FLUX / COMPUTE RESIDUAL
+
 for ii = 1:(Imax-1)
     for jj = 1:(Jmax-1)     
         if ii < 128
@@ -227,14 +226,44 @@ end
 
 %% COMPUTE TIME STEPS
 
-% alpha = zeros(4,1);
-% alpha(1) = 1/8; alpha(2) = 0.306; alpha(3) = 0.587; alpha(4) = 1;
-% shock = zeros(Imax-1,Jmax-1,4);
-% for ii = 1:Imax-1
-%     for jj = 1:Jmax-1
-%         
-% 
-% 
-% tau = CFL    
+alpha = zeros(4,1);
+alpha(1) = 1/8; alpha(2) = 0.306; alpha(3) = 0.587; alpha(4) = 1;
+tau = zeros(ii,jj);
+for ii = 1:Imax-1
+    for jj = 1:Jmax-1
+        shock_i = (U(ii,jj,2)/U(ii,jj,1)+C(ii,jj))*S_avg(ii,jj,1) ...
+                + (U(ii,jj,3)/U(ii,jj,1)+C(ii,jj))*S_avg(ii,jj,2);
+        shock_j = (U(ii,jj,2)/U(ii,jj,1)+C(ii,jj))*S_avg(ii,jj,3) ...
+                + (U(ii,jj,3)/U(ii,jj,1)+C(ii,jj))*S_avg(ii,jj,4);
+        tau(ii,jj) = CFL/(abs(shock_i)+abs(shock_j));
+    end
+end
+
+%% TIME EVOLUTION
+%T = 0;
+% while RES < RES_TOL
+%     T = T+1;
+%     if (T > T_TOL)
+%       disp('BREAK');
+%       break;
+%     end
+%     % COMPUTE TAU
+%     for RK = 2:4
+%         % COMPUTE F
+%         % COMPUTE D
+%         % COMPUTE F_FLUX, G_FLUX, RESIDUAL
+%         for ii = 1:Imax-1
+%             for jj = 1:Jmax-1
+%                 U(ii,jj) = U(ii,jj) - tau(ii,jj)*alpha(RK)*R(ii,jj);
+%             end
+%         end
+%     end
+%     RES = sum(sum(R));
+%      
+% end            
+            
+            
+  
+
 
 
