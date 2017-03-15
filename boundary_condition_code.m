@@ -1,14 +1,19 @@
-function [Ub2] = boundary_condition_code( I_MAX, J_MAX, U,S)
+function UB2 = boundary_condition_code(I_MAX, J_MAX, U,S)
+
+
 
 %setting up the boundary conditions 
-gamma = 1.4;
+rho_fs = 0.4135; u_fs = 258.4; v_fs = 0.0; C_fs = 304.025; M_fs = 0.85;
+p_fs = 27300.0;
+E_fs = (1/(1.4-1))*(p_fs/rho_fs) + (u_fs^2 + v_fs^2)/2;
+gamma = 1.4; 
 P = (gamma -1)*(U(:,:,4) - 0.5*(U(:,:,2).^2 + U(:,:,3).^2)./U(:,:,1));
 C = sqrt(gamma*P./U(:,:,1));
 u_i = U((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)),J_MAX-1,2)./U((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,1);
 ibnorm = sqrt(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,1).^2 + ...
     S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,2).^2);
-unfs = -ufs*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,1)./ibnorm);
-Rnbpi = unfs + ones((0.5*(I_MAX-1)),1)*2*cfs/(gamma-1);
+unfs = -u_fs*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,1)./ibnorm);
+Rnbpi = unfs + ones((0.5*(I_MAX-1)),1)*2*C_fs/(gamma-1);
 
 u_in =  -u_i.*((S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,1)+...
     S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,2))./ibnorm);
@@ -19,7 +24,7 @@ unbi = (Rnbpi + Rnimi)/2;
 cbi = ((gamma-1)/4)*(Rnbpi + Rnimi);
 
 %tangential velocities
-ulbi = ufs*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,2)./ibnorm);
+ulbi = u_fs*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,2)./ibnorm);
 %pressure vector at boundary set to interior adjacent cell
 Pbi = P((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)), J_MAX-1);
 %solved for rho based on that
@@ -43,8 +48,8 @@ Ubi(:,4) = rhobi.*Ebi;
 u_ou = U(((0.75*(I_MAX-1)+1)):(I_MAX-1),J_MAX-1,2)./U((0.75*(I_MAX-1)):(I_MAX-1),J_MAX-1,1);
 obnormu = sqrt(S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,1).^2 ...
 + S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,2).^2);
-unfsou = ufs*(S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,1)./obnormu);
-Rnbpou = -abs(unfsou) + ones((0.25*(I_MAX-1)),1)*Pfs/(rhofs*cfs);
+unfsou = u_fs*(S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,1)./obnormu);
+Rnbpou = -abs(unfsou) + ones((0.25*(I_MAX-1)),1)*P_fs/(rho_fs*C_fs);
 %normal velocity
 u_onu =  u_ou.*((S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,1)+...
     S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,2))./obnormu);
@@ -61,7 +66,7 @@ u_ol = U(1:(0.25*(I_MAX-1)),J_MAX-1,2)./U(1:(0.25*(I_MAX-1)),J_MAX-1,1);
 obnorml = sqrt(S(1:(0.25*(I_MAX-1)),J_MAX-1,7).^2 ...
 + S(1:(0.25*(I_MAX-1)),J_MAX-1,8).^2);
 unfsol = ufs*(S(1:(0.25*(I_MAX-1)),J_MAX-1,7)./obnorml);
-Rnbpol = -abs(unfsol) + ones((0.25*(I_MAX-1)),1)*Pfs/(rhofs*cfs);
+Rnbpol = -abs(unfsol) + ones((0.25*(I_MAX-1)),1)*P_fs/(rho_fs*C_fs);
 
 u_onl =  u_ol.*((S(1:(0.25*(I_MAX-1)),J_MAX-1,7)+...
     S(1:(0.25*(I_MAX-1)),J_MAX-1,8))./obnorml);
@@ -99,9 +104,9 @@ Ubo(:,2) = rhobo.*ubo;
 Ubo(:,3) = rhobo.*vbo;
 Ubo(:,4) = rhobo.*Ebo;
 
-Ub2 = zeros(I_MAX-1,4);
-Ub2(1:(0.25*(I_MAX-1)),:) = Ubo((0.25*(I_MAX-1)+1):(0.5*(I_MAX-1)),:);
-Ub2((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)),:) = Ubi;
-Ub2((0.75*(I_MAX-1)+1):I_MAX-1,:) = Ubo(1:(0.25*(I_MAX-1)),:);
+UB2 = zeros(I_MAX-1,4);
+UB2(1:(0.25*(I_MAX-1)),:) = Ubo((0.25*(I_MAX-1)+1):(0.5*(I_MAX-1)),:);
+UB2((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)),:) = Ubi;
+UB2((0.75*(I_MAX-1)+1):I_MAX-1,:) = Ubo(1:(0.25*(I_MAX-1)),:);
 
 end
