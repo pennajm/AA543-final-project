@@ -31,17 +31,20 @@ for nind = 1:4
             magds = sqrt(S(ii,jj,nind,1)^2 + S(ii,jj,nind,2)^2);
             if ii == 1
                 E2(ii,jj,nind) = 0.5*k2*((u(ii,jj)*S(ii,jj,nind,1) + v(ii,jj)*S(ii,jj,nind,2))...
-                    + C*magds)*max([nu(I_MAX-1),nu(ii), nu(ii+1), nu(ii+2)]);
+                    + C(ii,jj)*magds)*max([nu(I_MAX-1),nu(ii), nu(ii+1), nu(ii+2)]);
+            elseif ii == I_MAX-2
+                E2(ii,jj,nind) = 0.5*k2*((u(ii,jj)*S(ii,jj,nind,1) + v(ii,jj)*S(ii,jj,nind,2))...
+                    + C(ii,jj)*magds)*max([nu(ii-1),nu(ii), nu(ii+1), nu(1)]);
             elseif ii == I_MAX-1
                 E2(ii,jj,nind) = 0.5*k2*((u(ii,jj)*S(ii,jj,nind,1) + v(ii,jj)*S(ii,jj,nind,2))...
-                    + C*magds)*max([nu(ii-1),nu(ii), nu(ii+1), nu(1)]);
+                    + C(ii,jj)*magds)*max([nu(ii-1),nu(ii), nu(1), nu(2)]);
             else
                 E2(ii,jj,nind) = 0.5*k2*((u(ii,jj)*S(ii,jj,nind,1) + v(ii,jj)*S(ii,jj,nind,2))...
-                    + C*magds)*max([nu(ii-1),nu(ii), nu(ii+1), nu(ii+2)]);
+                    + C(ii,jj)*magds)*max([nu(ii-1),nu(ii), nu(ii+1), nu(ii+2)]);
             end
 
             E4(ii,jj,nind) = max([0,(0.5*k4*((u(ii,jj)*S(ii,jj,nind,1) + v(ii,jj)*S(ii,jj,nind,2))...
-                + C*magds) - E2(ii,jj,nind))]);
+                + C(ii,jj)*magds) - E2(ii,jj,nind))]);
 
             if ii== 1
                 D(ii,jj,nind) = E2(ii,jj,nind).*(U(ii+1,jj) - U(ii,jj)) - ...
