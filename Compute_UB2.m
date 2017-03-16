@@ -10,13 +10,14 @@ gamma = 1.4;
 P = (gamma -1)*(U(:,:,4) - 0.5*(U(:,:,2).^2 + U(:,:,3).^2)./U(:,:,1));
 C = sqrt(gamma*P./U(:,:,1));
 u_i = U((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)),J_MAX-1,2)./U((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,1);
+v_i = U((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)),J_MAX-1,3)./U((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,1);
 ibnorm = sqrt(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,1).^2 + ...
     S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,2).^2);
 unfs = -u_fs*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,1)./ibnorm);
 Rnbpi = unfs + ones((0.5*(I_MAX-1)),1)*2*C_fs/(gamma-1);
 
-u_in =  -u_i.*((S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,1)+...
-    S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,2))./ibnorm);
+u_in =  (u_i.*(-S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,1)))./ibnorm+...
+    (v_i.*(-S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,2)))./ibnorm;
 
 Rnimi = u_in - 2*C((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)),J_MAX-1)/(gamma-1);
 
@@ -46,35 +47,38 @@ Ubi(:,4) = rhobi.*Ebi;
 
 % outer boundary conditions, upper quadrant
 u_ou = U(((0.75*(I_MAX-1)+1)):(I_MAX-1),J_MAX-1,2)./U((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,1);
+v_ou = U(((0.75*(I_MAX-1)+1)):(I_MAX-1),J_MAX-1,3)./U((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,1);
 obnormu = sqrt(S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,1).^2 ...
 + S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,2).^2);
 unfsou = u_fs*(S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,1)./obnormu);
-Rnbpou = -abs(unfsou) + ones((0.25*(I_MAX-1)),1)*p_fs/(rho_fs*C_fs);
+Rnbpou = -abs(unfsou) - 2*C_fs/(gamma-1);
 %normal velocity
-u_onu =  u_ou.*((S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,1)+...
-    S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,2))./obnormu);
+u_onu =  (u_ou.*S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,1))./obnormu+...
+    (v_ou.*S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,2))./obnormu;
 %tangential velocity
-u_olu =  u_ou.*((-S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,2)+...
-    S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,1))./obnormu);
-Rnimou = u_onu - 2*C((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1)/(gamma-1);
+u_olu =  (u_ou.*-S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,2))./obnormu+...
+    (v_ou.*S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,1))./obnormu;
+
+Rnimou = -abs(u_onu) + 2*C((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1)/(gamma-1);
 
 unbou = -(Rnbpou + Rnimou)/2; %note this is an absolute value/magnitude
 cbou = -abs(unbou) - Rnbpou;
 
 %outer boundary conditions, lower quadrant 
 u_ol = U(1:(0.25*(I_MAX-1)),J_MAX-1,2)./U(1:(0.25*(I_MAX-1)),J_MAX-1,1);
-obnorml = sqrt(S(1:(0.25*(I_MAX-1)),J_MAX-1,7).^2 ...
-+ S(1:(0.25*(I_MAX-1)),J_MAX-1,8).^2);
-unfsol = u_fs*(S(1:(0.25*(I_MAX-1)),J_MAX-1,7)./obnorml);
-Rnbpol = -abs(unfsol) + ones((0.25*(I_MAX-1)),1)*p_fs/(rho_fs*C_fs);
+v_ol = U(1:(0.25*(I_MAX-1)),J_MAX-1,3)./U(1:(0.25*(I_MAX-1)),J_MAX-1,1);
+obnorml = sqrt(S(1:(0.25*(I_MAX-1)),J_MAX-1,4,1).^2 ...
++ S(1:(0.25*(I_MAX-1)),J_MAX-1,4,2).^2);
+unfsol = u_fs*(S(1:(0.25*(I_MAX-1)),J_MAX-1,4,1)./obnorml);
+Rnbpol = -abs(unfsol)  - 2*C_fs/(gamma-1);
 
-u_onl =  u_ol.*((S(1:(0.25*(I_MAX-1)),J_MAX-1,7)+...
-    S(1:(0.25*(I_MAX-1)),J_MAX-1,8))./obnorml);
-%tangential velocity lower boundary
-u_oll =  u_ol.*((-S(1:(0.25*(I_MAX-1)),J_MAX-1,8)+...
-    S(1:(0.25*(I_MAX-1)),J_MAX-1,7))./obnorml);
+u_onl =  (u_ol.*S(1:(0.25*(I_MAX-1)),J_MAX-1,4,1))./obnorml+...
+    (v_ol.*S(1:(0.25*(I_MAX-1)),J_MAX-1,4,2))./obnorml;
+%tangential velocity
+u_oll =  (u_ol.*-S(1:(0.25*(I_MAX-1)),J_MAX-1,4,2))./obnorml+...
+    (v_ol.*S(1:(0.25*(I_MAX-1)),J_MAX-1,4,1))./obnorml;
 
-Rnimol = u_onl - 2*C(1:(0.25*(I_MAX-1)),J_MAX-1)/(gamma-1);
+Rnimol = -abs(u_onl) + 2*C(1:(0.25*(I_MAX-1)),J_MAX-1)/(gamma-1);
 
 unbol = -(Rnbpol + Rnimol)/2; %note this is an absolute value/magnitude
 cbol = -abs(unbol) - Rnbpol;
