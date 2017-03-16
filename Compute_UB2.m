@@ -1,4 +1,4 @@
-function [UB2, ubo, vbo] = Compute_UB2(I_MAX, J_MAX, U,S)
+function UB2 = Compute_UB2(I_MAX, J_MAX, U,S)
 
 
 
@@ -8,6 +8,8 @@ p_fs = 27300.0;
 gamma = 1.4; 
 E_fs = (1/(1.4-1))*(p_fs/rho_fs) + (u_fs^2 + v_fs^2)/2;
 Hfs = E_fs + p_fs/rho_fs;
+Sfs = p_fs/(rho_fs^gamma);
+
 
 P = (gamma -1)*(U(:,:,4) - 0.5*(U(:,:,2).^2 + U(:,:,3).^2)./U(:,:,1));
 C = sqrt(gamma*P./U(:,:,1));
@@ -24,21 +26,22 @@ u_in =  (u_i.*(-S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,1)))./ibnorm+...
 Rnimi = u_in - 2*C((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)),J_MAX-1)/(gamma-1);
 
 unbi = (Rnbpi + Rnimi)/2;
-cbi = ((gamma-1)/4)*(Rnbpi + Rnimi);
+cbi = ((gamma-1)/4)*(Rnbpi - Rnimi);
 
 %tangential velocities
 ulbi = u_fs*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,2)./ibnorm);
 %pressure vector at boundary set to interior adjacent cell
-rhobi = U((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)), J_MAX-1,1);
-%solved for rho based on that
-
+%rhobi = U((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)), J_MAX-1,1);
+%solved for rho based on entropy
+rhobi = ((cbi.^2)/(gamma*Sfs)).^(1/(gamma-1));
 %set the x and y velocities for each of the components
 ubi = ulbi.*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,2)./ibnorm) - ...
     unbi.*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,1)./ibnorm);
 vbi = -ulbi.*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,1)./ibnorm) - ...
     unbi.*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,2)./ibnorm);
 
-Pbi = (gamma/(gamma-1))*(Hfs - 0.5*(ubi.^2 + vbi.^2)).*rhobi;
+%Pbi = (gamma/(gamma-1))*(Hfs - 0.5*(ubi.^2 + vbi.^2)).*rhobi;
+Pbi = rhobi.*(cbi.^2)/gamma;
 Ebi = (1/(gamma-1))*(Pbi./rhobi) + 0.5*(ubi.^2 + vbi.^2);
 %put together U
 Ubi = zeros((0.5*(I_MAX-1)),4);
@@ -66,7 +69,7 @@ u_olu =  (u_ou.*-S((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1,4,2))./obnormu+...
 Rnimou = -abs(u_onu) + 2*C((0.75*(I_MAX-1)+1):(I_MAX-1),J_MAX-1)/(gamma-1);
 
 unbou = -(Rnbpou + Rnimou)/2; %note this is an absolute value/magnitude
-cbou = -abs(unbou) - Rnbpou;
+cbou = ((gamma-1)/4)*(Rnbpou - Rnimou);
 
 %outer boundary conditions, lower quadrant 
 u_ol = U(1:(0.25*(I_MAX-1)),J_MAX-1,2)./U(1:(0.25*(I_MAX-1)),J_MAX-1,1);
@@ -85,7 +88,7 @@ u_oll =  (u_ol.*-S(1:(0.25*(I_MAX-1)),J_MAX-1,4,2))./obnorml+...
 Rnimol = -abs(u_onl) + 2*C(1:(0.25*(I_MAX-1)),J_MAX-1)/(gamma-1);
 
 unbol = -(Rnbpol + Rnimol)/2; %note this is an absolute value/magnitude
-cbol = -abs(unbol) - Rnbpol;
+cbol = ((gamma-1)/4)*(Rnbpol - Rnimol);
 
 
 unbo = [unbou' unbol'];
@@ -103,14 +106,16 @@ Snormx = Snormx';
 Snormy = Snormy';
 
 %pressure vector at boundary set to interior adjacent cell
-rhobo = [U((0.75*(I_MAX-1)+1):I_MAX-1, J_MAX-1,1)' U(1:(0.25*(I_MAX-1)), J_MAX-1,1)'];
-rhobo = rhobo';
+%rhobo = [U((0.75*(I_MAX-1)+1):I_MAX-1, J_MAX-1,1)' U(1:(0.25*(I_MAX-1)), J_MAX-1,1)'];
+%rhobo = rhobo';
+rhobo = ((cbo.^2)/(gamma*Sfs)).^(1/(gamma-1));
 %solved for rho based on that
 
 %set the x and y velocities for each of the components
 ubo = -ulbo.*(Snormy./obnorm) + unbo.*(Snormx./obnorm);
 vbo = ulbo.*(Snormx./obnorm) + unbo.*(Snormy./obnorm);
-Pbo = (gamma/(gamma-1))*(Hfs - 0.5*(ubo.^2 + vbo.^2)).*rhobo;
+%Pbo = (gamma/(gamma-1))*(Hfs - 0.5*(ubo.^2 + vbo.^2)).*rhobo;
+Pbo = rhobo.*(cbo.^2)/gamma;
 Ebo = (1/(gamma-1))*(Pbo./rhobo) + 0.5*(ubo.^2 + vbo.^2);
 %put together U, F, G
 Ubo = zeros((0.5*(I_MAX-1)),4);
