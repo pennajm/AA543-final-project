@@ -1,7 +1,9 @@
-function FG = Compute_FG(I_MAX,J_MAX,g,U)
+function [FG,FGB1,FGB2] = Compute_FG(I_MAX,J_MAX,U,UB1,UB2)
 
 g = 1.4;
 FG = zeros(I_MAX-1,J_MAX-1,2,4);
+FGB1 = zeros(I_MAX-1,1,2,4);
+FGB2 = zeros(I_MAX-1,1,2,4);
 for ii = 1:I_MAX-1
     for jj = 1:J_MAX-1
         FG(ii,jj,1,1) = U(ii,jj,2);
@@ -22,5 +24,44 @@ for ii = 1:I_MAX-1
                       + U(ii,jj,3)^2)/(U(ii,jj,1)^2));
     end
 end
+%% J=1 EXTERIOR
+for ii = 1:I_MAX-1
+    FGB1(ii,1,1,1) = UB1(ii,2);
+    FGB1(ii,1,1,2) = (UB1(ii,2)^2)/UB1(ii,1) ...
+                  +(g-1)*(UB1(ii,4)-(1/2)*(UB1(ii,2)^2 ...
+                  + UB1(ii,3)^2)/UB1(ii,1));
+    FGB1(ii,1,1,3) = UB1(ii,2)*UB1(ii,3)/UB1(ii,1);
+    FGB1(ii,1,1,4) = UB1(ii,2)*(g*UB1(ii,4)/UB1(ii,1) ...
+                  - ((g-1)/2)*(UB1(ii,2)^2 ...
+                  + UB1(ii,3)^2)/(UB1(ii,1)^2));
+    FGB1(ii,1,2,1) = UB1(ii,3);
+    FGB1(ii,1,2,2) = UB1(ii,3)*UB1(ii,2)/UB1(ii,1);
+    FGB1(ii,1,2,3) = (UB1(ii,3)^2)/UB1(ii,1) ...
+                  +(g-1)*(UB1(ii,4)-(1/2)*(UB1(ii,2)^2 ...
+                  + UB1(ii,3)^2)/UB1(ii,1));
+    FGB1(ii,1,2,4) = UB1(ii,3)*(g*UB1(ii,4)/UB1(ii,1) ...
+                  - ((g-1)/2)*(UB1(ii,2)^2 ...
+                  + UB1(ii,3)^2)/(UB1(ii,1)^2));
+end
+%% J=J_MAX EXTERIOR
+for ii = 1:I_MAX-1
+    FGB2(ii,1,1,1) = UB2(ii,2);
+    FGB2(ii,1,1,2) = (UB2(ii,2)^2)/UB2(ii,1) ...
+                  +(g-1)*(UB2(ii,4)-(1/2)*(UB2(ii,2)^2 ...
+                  + UB2(ii,3)^2)/UB2(ii,1));
+    FGB2(ii,1,1,3) = UB2(ii,2)*UB2(ii,3)/UB2(ii,1);
+    FGB2(ii,1,1,4) = UB2(ii,2)*(g*UB2(ii,4)/UB2(ii,1) ...
+                  - ((g-1)/2)*(UB2(ii,2)^2 ...
+                  + UB2(ii,3)^2)/(UB2(ii,1)^2));
+    FGB2(ii,1,2,1) = UB2(ii,3);
+    FGB2(ii,1,2,2) = UB2(ii,3)*UB2(ii,2)/UB2(ii,1);
+    FGB2(ii,1,2,3) = (UB2(ii,3)^2)/UB2(ii,1) ...
+                  +(g-1)*(UB2(ii,4)-(1/2)*(UB2(ii,2)^2 ...
+                  + UB2(ii,3)^2)/UB2(ii,1));
+    FGB2(ii,1,2,4) = UB2(ii,3)*(g*UB2(ii,4)/UB2(ii,1) ...
+                  - ((g-1)/2)*(UB2(ii,2)^2 ...
+                  + UB2(ii,3)^2)/(UB2(ii,1)^2));
+end
+
 end
 
