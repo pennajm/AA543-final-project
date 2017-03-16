@@ -1,12 +1,14 @@
-function UB2 = Compute_UB2(I_MAX, J_MAX, U,S)
+function [UB2, ubo, vbo] = Compute_UB2(I_MAX, J_MAX, U,S)
 
 
 
 %setting up the boundary conditions 
 rho_fs = 0.4135; u_fs = 258.4; v_fs = 0.0; C_fs = 304.025; M_fs = 0.85;
 p_fs = 27300.0;
-E_fs = (1/(1.4-1))*(p_fs/rho_fs) + (u_fs^2 + v_fs^2)/2;
 gamma = 1.4; 
+E_fs = (1/(1.4-1))*(p_fs/rho_fs) + (u_fs^2 + v_fs^2)/2;
+Hfs = E_fs + p_fs/rho_fs;
+
 P = (gamma -1)*(U(:,:,4) - 0.5*(U(:,:,2).^2 + U(:,:,3).^2)./U(:,:,1));
 C = sqrt(gamma*P./U(:,:,1));
 u_i = U((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)),J_MAX-1,2)./U((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,1);
@@ -27,14 +29,16 @@ cbi = ((gamma-1)/4)*(Rnbpi + Rnimi);
 %tangential velocities
 ulbi = u_fs*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,2)./ibnorm);
 %pressure vector at boundary set to interior adjacent cell
-Pbi = P((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)), J_MAX-1);
+rhobi = U((0.25*(I_MAX-1)+1):(0.75*(I_MAX-1)), J_MAX-1,1);
 %solved for rho based on that
-rhobi = gamma*Pbi./(cbi.^2);
+
 %set the x and y velocities for each of the components
 ubi = ulbi.*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,2)./ibnorm) - ...
     unbi.*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,1)./ibnorm);
 vbi = -ulbi.*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,1)./ibnorm) - ...
     unbi.*(S((0.25*(I_MAX-1)+1):0.75*(I_MAX-1),J_MAX-1,4,2)./ibnorm);
+
+Pbi = (gamma/(gamma-1))*(Hfs - 0.5*(ubi.^2 + vbi.^2)).*rhobi;
 Ebi = (1/(gamma-1))*(Pbi./rhobi) + 0.5*(ubi.^2 + vbi.^2);
 %put together U
 Ubi = zeros((0.5*(I_MAX-1)),4);
@@ -99,16 +103,14 @@ Snormx = Snormx';
 Snormy = Snormy';
 
 %pressure vector at boundary set to interior adjacent cell
-Pbo = [P((0.75*(I_MAX-1)+1):I_MAX-1, J_MAX-1)' P(1:(0.25*(I_MAX-1)), J_MAX-1)'];
-Pbo = Pbo';
-size(Pbo)
-size(cbo)
+rhobo = [U((0.75*(I_MAX-1)+1):I_MAX-1, J_MAX-1,1)' U(1:(0.25*(I_MAX-1)), J_MAX-1,1)'];
+rhobo = rhobo';
 %solved for rho based on that
-rhobo = gamma*Pbo./(cbo.^2);
-size(rhobo)
+
 %set the x and y velocities for each of the components
 ubo = -ulbo.*(Snormy./obnorm) + unbo.*(Snormx./obnorm);
 vbo = ulbo.*(Snormx./obnorm) + unbo.*(Snormy./obnorm);
+Pbo = (gamma/(gamma-1))*(Hfs - 0.5*(ubo.^2 + vbo.^2)).*rhobo;
 Ebo = (1/(gamma-1))*(Pbo./rhobo) + 0.5*(ubo.^2 + vbo.^2);
 %put together U, F, G
 Ubo = zeros((0.5*(I_MAX-1)),4);
